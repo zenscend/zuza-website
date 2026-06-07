@@ -1,28 +1,12 @@
 import { Resend } from "resend";
 import { NextResponse } from "next/server";
-import { readFileSync } from "fs";
-import { join } from "path";
+import { supabase } from "@/lib/supabase";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const FROM = "Zuza <noreply@zuzatech.com>";
-const NOTIFY = "info@zuzatech.com";
-
-// Extract the PNG base64 from the SVG at startup so we don't re-read on every request
-function extractLogoPng(): string {
-  try {
-    const svg = readFileSync(join(process.cwd(), "public", "zuza-logo.svg"), "utf-8");
-    const match = svg.match(/href="data:image\/png;base64,([^"]+)"/);
-    return match ? match[1] : "";
-  } catch {
-    return "";
-  }
-}
-
-const LOGO_B64 = extractLogoPng();
-const LOGO_SRC = LOGO_B64
-  ? `data:image/png;base64,${LOGO_B64}`
-  : "https://zuzatech.com/zuza-logo.svg";
+const SITE_URL = process.env.SITE_URL ?? "https://zuzatech.com";
+const LOGO_SRC = `${SITE_URL}/zuza-logo.png`;
 
 export async function POST(req: Request) {
   const { email } = await req.json();
@@ -32,25 +16,40 @@ export async function POST(req: Request) {
   }
 
   try {
-    await Promise.all([
-      resend.emails.send({
-        from: FROM,
-        to: email,
-        subject: "You're on the Zuza waiting list 🎉",
-        html: confirmationEmail(email),
-      }),
-      resend.emails.send({
-        from: FROM,
-        to: NOTIFY,
-        subject: `New waitlist signup: ${email}`,
-        html: notificationEmail(email),
-      }),
-    ]);
+    // 1. Check if email already exists
+    const { data: existing } = await supabase
+      .from("waitlist")
+      .select("id")
+      .eq("email", email)
+      .maybeSingle();
+
+    if (existing) {
+      // Already signed up — return success silently, no email sent
+      return NextResponse.json({ success: true });
+    }
+
+    // 2. Insert new record
+    const { error: dbError } = await supabase
+      .from("waitlist")
+      .insert({ email });
+
+    if (dbError) {
+      console.error("Supabase error:", dbError);
+      return NextResponse.json({ error: "Failed to save signup" }, { status: 500 });
+    }
+
+    // 3. Send confirmation only for new signups
+    await resend.emails.send({
+      from: FROM,
+      to: email,
+      subject: "You're on the Zuza waiting list 🎉",
+      html: confirmationEmail(email),
+    });
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("Resend error:", err);
-    return NextResponse.json({ error: "Failed to send email" }, { status: 500 });
+    console.error("Waitlist error:", err);
+    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
 
@@ -121,80 +120,6 @@ function confirmationEmail(email: string): string {
               <p style="margin:8px 0 0;font-size:12px;color:#333333;">
                 © ${new Date().getFullYear()} Zuza Technologies — Built in South Africa 🇿🇦
               </p>
-            </td>
-          </tr>
-
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>`;
-}
-
-function notificationEmail(email: string): string {
-  const now = new Date().toLocaleString("en-ZA", {
-    timeZone: "Africa/Johannesburg",
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
-
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>New waitlist signup</title>
-</head>
-<body style="margin:0;padding:0;background:#0d0d0d;font-family:Arial,Helvetica,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0d0d0d;padding:48px 16px;">
-    <tr>
-      <td align="center">
-        <table width="100%" style="max-width:480px;background:#111111;border-radius:16px;border:1px solid #2a2a2a;overflow:hidden;">
-
-          <!-- Logo header -->
-          <tr>
-            <td style="padding:28px 36px 24px;border-bottom:1px solid #2a2a2a;">
-              <img
-                src="${LOGO_SRC}"
-                alt="Zuza"
-                width="52"
-                height="52"
-                style="display:block;border:0;outline:none;"
-              />
-            </td>
-          </tr>
-
-          <tr>
-            <td style="height:3px;background:#facc15;"></td>
-          </tr>
-
-          <tr>
-            <td style="padding:32px 36px 12px;">
-              <p style="margin:0 0 6px;font-size:12px;font-weight:600;color:#facc15;text-transform:uppercase;letter-spacing:2px;">
-                Waitlist
-              </p>
-              <h1 style="margin:0;font-size:22px;font-weight:800;color:#ffffff;">
-                New signup
-              </h1>
-            </td>
-          </tr>
-
-          <tr>
-            <td style="padding:20px 36px 36px;">
-              <table width="100%" style="background:#1a1a1a;border-radius:10px;border:1px solid #2a2a2a;">
-                <tr>
-                  <td style="padding:20px 24px;">
-                    <p style="margin:0 0 4px;font-size:11px;color:#555555;text-transform:uppercase;letter-spacing:1px;">Email</p>
-                    <p style="margin:0;font-size:16px;font-weight:700;color:#facc15;">${email}</p>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding:0 24px 20px;">
-                    <p style="margin:0 0 4px;font-size:11px;color:#555555;text-transform:uppercase;letter-spacing:1px;">Time (SAST)</p>
-                    <p style="margin:0;font-size:14px;color:#888888;">${now}</p>
-                  </td>
-                </tr>
-              </table>
             </td>
           </tr>
 
