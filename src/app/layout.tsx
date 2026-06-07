@@ -19,6 +19,7 @@ export const metadata: Metadata = {
     type: "website",
   },
   icons: {
+    icon: "/zuza-logo.svg",
     apple: "/zuza-logo.svg",
   },
 };
