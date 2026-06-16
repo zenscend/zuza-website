@@ -1,12 +1,12 @@
 import Image from "next/image";
 
 const partners = [
-  {
-    name: "Allan Gray",
-    src: "/allan-gray-logo.png",
-    width: 160,
-    height: 48,
-  },
+  // {
+  //   name: "Allan Gray",
+  //   src: "/allan-gray-logo.png",
+  //   width: 160,
+  //   height: 48,
+  // },
   {
     name: "Jasiri",
     src: "/jasiri-logo.png",
