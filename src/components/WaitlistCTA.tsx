@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { ArrowRight, Check, Loader2 } from "lucide-react";
 
 type Status = "idle" | "loading" | "success" | "error";
@@ -121,7 +122,11 @@ export default function WaitlistCTA() {
         )}
 
         <p className="text-xs mt-6 text-zuza-faint">
-          By joining you agree to receive product updates. Unsubscribe anytime.
+          By joining you agree to our{" "}
+          <Link href="/terms" className="underline hover:text-zuza-subtle transition-colors">
+            Terms of Service
+          </Link>{" "}
+          and to receive product updates. Unsubscribe anytime.
         </p>
       </div>
     </section>
