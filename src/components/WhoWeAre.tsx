@@ -21,7 +21,9 @@ export default function WhoWeAre() {
                 src="/vendor-1.jpg"
                 alt="Local vendor at work"
                 fill
+                sizes="(max-width: 1024px) 100vw, 448px"
                 className="object-cover object-center"
+                priority
               />
               {/* Subtle dark overlay at bottom */}
               <div

@@ -57,6 +57,7 @@ export default function LogoIntro() {
           src="/zuza-logo.svg"
           alt="Zuza"
           fill
+          sizes="150px"
           className="object-contain"
           unoptimized
           priority

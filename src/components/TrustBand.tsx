@@ -10,7 +10,7 @@ const partners = [
   {
     name: "Jasiri",
     src: "/jasiri-logo.png",
-    width: 140,
+    width: 249,
     height: 48,
   },
 ];
@@ -35,11 +35,7 @@ export default function TrustBand() {
                 width={partner.width}
                 height={partner.height}
                 className="object-contain"
-                style={{
-                  filter: "grayscale(100%) brightness(10)",
-                  maxHeight: 48,
-                  width: "auto",
-                }}
+                style={{ filter: "grayscale(100%) brightness(10)" }}
               />
             </div>
           ))}
