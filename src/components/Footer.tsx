@@ -12,6 +12,7 @@ export default function Footer() {
                 src="/zuza-logo.svg"
                 alt="Zuza"
                 fill
+                sizes="36px"
                 className="object-contain"
                 unoptimized
               />

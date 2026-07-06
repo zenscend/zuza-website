@@ -55,6 +55,7 @@ export default function Team() {
                   src={member.image}
                   alt={member.alt}
                   fill
+                  sizes="(max-width: 640px) 100vw, 33vw"
                   className={`object-cover ${member.objectPosition}`}
                 />
               </div>

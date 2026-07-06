@@ -26,6 +26,7 @@ export default function Navbar() {
               src="/zuza-logo.svg"
               alt="Zuza"
               fill
+              sizes="40px"
               className="object-contain"
               unoptimized
             />
