@@ -5,9 +5,11 @@ import Image from "next/image";
 import { Menu, X } from "lucide-react";
 
 const navLinks = [
+  { label: "About", href: "#about" },
   { label: "How It Works", href: "#how-it-works" },
   // { label: "Features", href: "#features" },
-  { label: "About", href: "#about" },
+  { label: "Team", href: "#team" },
+  {label: "Join", href:'#waitlist'}
 ];
 
 export default function Navbar() {

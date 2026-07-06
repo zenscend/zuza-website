@@ -4,6 +4,7 @@ import TrustBand from "@/components/TrustBand";
 import WhoWeAre from "@/components/WhoWeAre";
 import Features from "@/components/Features";
 import HowItWorks from "@/components/HowItWorks";
+import Team from "@/components/Team";
 import WaitlistCTA from "@/components/WaitlistCTA";
 import Footer from "@/components/Footer";
 
@@ -17,6 +18,7 @@ export default function Home() {
         <WhoWeAre />
         {/* <Features /> */}
         <HowItWorks />
+        <Team />
         <WaitlistCTA />
       </main>
       <Footer />
